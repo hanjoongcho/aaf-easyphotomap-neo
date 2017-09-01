@@ -1,9 +1,11 @@
 package io.github.hanjoongcho.commons.utils
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
+import android.util.TypedValue
 import android.view.Display
 
 import com.drew.imaging.jpeg.JpegMetadataReader
@@ -53,6 +55,20 @@ object CommonUtils {
         }
 
         return gpsDirectory
+    }
+
+    fun dpToPixel(context: Context, dp: Int): Int {
+        return dpToPixel(context, dp, 0)
+    }
+
+    fun dpToPixel(context: Context, dp: Int, policy: Int): Int {
+        val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), context.resources.displayMetrics)
+        var pixel = 0
+        when (policy) {
+            0 -> pixel = px.toInt()
+            1 -> pixel = Math.round(px)
+        }
+        return pixel
     }
 
 }

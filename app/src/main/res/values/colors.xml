@@ -2,7 +2,7 @@
 <resources>
     <color name="color_primary">#0275d8</color>
     <color name="color_primary_dark">#01549c</color>
-    <color name="color_accent">#FF0000</color>
+    <color name="color_accent">#0275d8</color>
 
     <color name="splash_text">#FFFFFF</color>
 

@@ -1,15 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:orientation="vertical"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
+        android:padding="@dimen/common_view_padding"
         android:background="@color/file_explorer_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -34,7 +32,7 @@
         </LinearLayout>
 
         <ListView
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="@dimen/common_view_padding"
             android:paddingRight="5dp"
             android:paddingLeft="5dp"
             android:background="@drawable/bg_file_explorer_card"
@@ -44,4 +42,12 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
-</LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/finishButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/common_floating_button_margin"
+        app:srcCompat="@drawable/marker" />
+
+</android.support.design.widget.CoordinatorLayout>

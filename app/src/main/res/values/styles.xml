@@ -13,6 +13,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- MapsActivity style -->
     <style name="MainMenuOuter">
         <item name="android:gravity">center</item>
         <item name="android:layout_weight">1</item>
@@ -20,13 +21,24 @@
         <item name="android:layout_height">match_parent</item>
     </style>
 
+    <style name="MainMenuItem" parent="WrapWidthHeight">
+        <item name="android:background">@drawable/ic_click</item>
+    </style>
+
+    <!-- Common style -->
     <style name="WrapWidthHeight">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="MainMenuItem" parent="WrapWidthHeight">
-        <item name="android:background">@drawable/ic_click</item>
+    <!--item_file_explorer style-->
+    <style name="item_file_explorer_info">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">10dp</item>
     </style>
 
 </resources>

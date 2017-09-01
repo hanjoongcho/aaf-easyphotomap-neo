@@ -6,7 +6,7 @@ import org.apache.commons.io.FilenameUtils
 /**
  * Created by CHO HANJOONG on 2016-07-30.
  */
-class ExplorerItem : Comparable<ExplorerItem> {
+class FileExplorerItem : Comparable<FileExplorerItem> {
 
     var imagePath: String? = null
     var fileName: String? = null
@@ -22,7 +22,7 @@ class ExplorerItem : Comparable<ExplorerItem> {
         return fileName as String
     }
 
-    override fun compareTo(entity: ExplorerItem): Int {
+    override fun compareTo(entity: FileExplorerItem): Int {
         return (fileName?.compareTo(entity.fileName as String)) as Int
     }
 }

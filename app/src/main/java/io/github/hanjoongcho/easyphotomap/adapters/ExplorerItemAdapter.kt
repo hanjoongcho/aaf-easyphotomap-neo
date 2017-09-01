@@ -21,12 +21,12 @@ import com.drew.lang.GeoLocation
 import io.github.hanjoongcho.commons.utils.BitmapUtils
 import io.github.hanjoongcho.commons.utils.CommonUtils
 import io.github.hanjoongcho.easyphotomap.R
-import io.github.hanjoongcho.easyphotomap.models.ExplorerItem
+import io.github.hanjoongcho.easyphotomap.models.FileExplorerItem
 
 /**
  * Created by CHO HANJOONG on 2016-07-30.
  */
-class ExplorerItemAdapter(private val activity: Activity, private val parentContext: Context, private val layoutResourceId: Int, private val entities: ArrayList<ExplorerItem>) : ArrayAdapter<ExplorerItem>(parentContext, layoutResourceId, entities) {
+class ExplorerItemAdapter(private val activity: Activity, private val parentContext: Context, private val layoutResourceId: Int, private val entities: ArrayList<FileExplorerItem>) : ArrayAdapter<FileExplorerItem>(parentContext, layoutResourceId, entities) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var row = convertView
@@ -54,9 +54,9 @@ class ExplorerItemAdapter(private val activity: Activity, private val parentCont
         val entity = entities[position]
 
         // init default option
-        val widthHeight = (CommonUtils.getDefaultDisplay(activity).x / 5).toInt()
-        holder.imageView1!!.layoutParams.height = widthHeight
-        holder.imageView1!!.layoutParams.width = widthHeight
+//        val widthHeight = (CommonUtils.getDefaultDisplay(activity).x / 5).toInt()
+//        holder.imageView1!!.layoutParams.height = widthHeight
+//        holder.imageView1!!.layoutParams.width = widthHeight
 
         // init default value
         holder.textView1!!.text = entity.fileName
@@ -70,11 +70,11 @@ class ExplorerItemAdapter(private val activity: Activity, private val parentCont
         if (entity.isDirectory) {
             holder.textView2!!.visibility = View.GONE
             holder.textView3!!.visibility = View.GONE
-            ThumbnailTask(activity, position, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, widthHeight.toString())
+            ThumbnailTask(activity, position, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null)
         } else {
             holder.textView2!!.visibility = View.VISIBLE
             holder.textView3!!.visibility = View.VISIBLE
-            ThumbnailTask(activity, position, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imagePath, widthHeight.toString())
+            ThumbnailTask(activity, position, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, imagePath)
         }
         return row
     }
@@ -85,7 +85,6 @@ class ExplorerItemAdapter(private val activity: Activity, private val parentCont
 
         override fun doInBackground(vararg params: String): Bitmap? {
             val filePath = params[0]
-            val widthHeight = Integer.valueOf(params[1])!!
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = false
             options.inSampleSize = 20
@@ -106,6 +105,7 @@ class ExplorerItemAdapter(private val activity: Activity, private val parentCont
                         bitmap = CommonUtils.decodeFile(mActivity, filePath, options)
                         BitmapUtils.addBitmapToMemoryCache(filePath, bitmap as Bitmap)
                     }
+                    val widthHeight = CommonUtils.dpToPixel(mActivity as Context, 45)
                     resized = Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, true)
 
                     val gpsDirectory = CommonUtils.getGPSDirectory(filePath)

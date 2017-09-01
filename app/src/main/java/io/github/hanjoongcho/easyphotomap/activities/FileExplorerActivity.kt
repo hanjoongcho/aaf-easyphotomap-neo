@@ -1,5 +1,6 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
@@ -15,7 +16,7 @@ import android.widget.TextView
 import io.github.hanjoongcho.commons.utils.PreferenceUtils
 import io.github.hanjoongcho.easyphotomap.R
 import io.github.hanjoongcho.easyphotomap.adapters.ExplorerItemAdapter
-import io.github.hanjoongcho.easyphotomap.models.ExplorerItem
+import io.github.hanjoongcho.easyphotomap.models.FileExplorerItem
 import kotlinx.android.synthetic.main.activity_file_explorer.*
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -27,21 +28,40 @@ import java.util.*
 class FileExplorerActivity : AppCompatActivity() {
 
     private var currentPath: String? = null
-    private var listExplorerFile: ArrayList<ExplorerItem>? = null
-    private var listExplorerDirectory: ArrayList<ExplorerItem>? = null
-    private var explorerAdapter: ArrayAdapter<ExplorerItem>? = null
-
-    init {}
+    private var listFileExplorerFile: ArrayList<FileExplorerItem>? = null
+    private var listFileExplorerDirectory: ArrayList<FileExplorerItem>? = null
+    private var fileExplorerAdapter: ArrayAdapter<FileExplorerItem>? = null
+    private val previous: FileExplorerItem = FileExplorerItem()
+    init {
+        previous.isDirectory = true
+        previous.fileName = ".."
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_explorer)
 
         currentPath = Environment.getExternalStorageDirectory().absolutePath + "/DCIM";
-        listExplorerFile = arrayListOf<ExplorerItem>()
-        listExplorerDirectory = arrayListOf<ExplorerItem>()
-        explorerAdapter = ExplorerItemAdapter(this, this, R.layout.item_file_explorer, listExplorerFile as ArrayList<ExplorerItem>);
-        fileListView.adapter = explorerAdapter
+        listFileExplorerFile = arrayListOf<FileExplorerItem>()
+        listFileExplorerDirectory = arrayListOf<FileExplorerItem>()
+        fileExplorerAdapter = ExplorerItemAdapter(this, this, R.layout.item_file_explorer, listFileExplorerFile as ArrayList<FileExplorerItem>);
+        fileListView.adapter = fileExplorerAdapter
+        fileListView.setOnItemClickListener { adapterView, _, position, _ ->
+            val item = adapterView.adapter.getItem(position) as FileExplorerItem
+            var fileName = item.fileName as String
+            if (fileName.startsWith("[") && fileName.endsWith("]")) {
+                fileName = fileName.substring(1, fileName.length - 1)
+            }
+            val path = currentPath + "/" + fileName
+            val file = File(path)
+            if (file.isDirectory) {
+                currentPath = if (fileName == "..") currentPath?.substring(0, currentPath!!.lastIndexOf("/")) else path
+                this@FileExplorerActivity.refreshList()
+            } else {
+                // TODO register photo map
+            }
+        }
+        finishButton.setOnClickListener{ finish() }
         refreshList()
     }
 
@@ -84,12 +104,11 @@ class FileExplorerActivity : AppCompatActivity() {
     internal inner class RefreshThread : Thread() {
 
         override fun run() {
-            listExplorerFile?.clear()
-            listExplorerDirectory?.clear()
-//            val current = File(currentPath)
+            listFileExplorerFile?.clear()
+            listFileExplorerDirectory?.clear()
             val fileNames = File(currentPath).list()
             for (fileName in fileNames) {
-                val explorerFile = ExplorerItem()
+                val explorerFile = FileExplorerItem()
                 val path = currentPath + "/" + fileName
                 var name = ""
                 val file = File(path)
@@ -97,25 +116,26 @@ class FileExplorerActivity : AppCompatActivity() {
                     name = "[$fileName]"
                     explorerFile.setImagePathAndFileName(name)
                     explorerFile.isDirectory = true
-                    listExplorerDirectory?.add(explorerFile)
+                    listFileExplorerDirectory?.add(explorerFile)
                 } else {
                     name = fileName
                     val extension = FilenameUtils.getExtension(name).toLowerCase()
                     if (!extension.matches("jpg|jpeg".toRegex())) continue
-                    explorerFile.imagePath = path
-                    listExplorerFile?.add(explorerFile)
+                    explorerFile.setImagePathAndFileName(path)
+                    listFileExplorerFile?.add(explorerFile)
                 }
             }
 
             if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, "enable_reverse_order")) {
-                Collections.sort(listExplorerDirectory, Collections.reverseOrder<Any>())
-                Collections.sort(listExplorerFile, Collections.reverseOrder<Any>())
+                Collections.sort(listFileExplorerDirectory, Collections.reverseOrder<Any>())
+                Collections.sort(listFileExplorerFile, Collections.reverseOrder<Any>())
             } else {
-                Collections.sort(listExplorerDirectory)
-                Collections.sort(listExplorerFile)
+                Collections.sort(listFileExplorerDirectory)
+                Collections.sort(listFileExplorerFile)
             }
-            listExplorerFile?.addAll(0, listExplorerDirectory as Collection<ExplorerItem>)
-            android.os.Handler(Looper.getMainLooper()).post { explorerAdapter?.notifyDataSetInvalidated() }
+            listFileExplorerFile?.addAll(0, listFileExplorerDirectory as Collection<FileExplorerItem>)
+            listFileExplorerFile?.add(0, previous)
+            android.os.Handler(Looper.getMainLooper()).post { fileExplorerAdapter?.notifyDataSetInvalidated() }
         }
     }
 
