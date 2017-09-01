@@ -8,6 +8,7 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import io.github.hanjoongcho.easyphotomap.R
 
 /**
  * Created by CHO HANJOONG on 2016-10-09.
@@ -19,9 +20,9 @@ object PermissionUtils {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
                 ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             AlertDialog.Builder(context)
-                    .setMessage("Easy Diary 사용을 위해서는 권한승인이 필요합니다.")
-                    .setTitle("권한승인 요청")
-                    .setPositiveButton("확인") { dialog, whichButton -> ActivityCompat.requestPermissions(activity, permissions, requestCode) }
+                    .setMessage(context.getString(R.string.confirmPermission_message))
+                    .setTitle(context.getString(R.string.confirmPermission_title))
+                    .setPositiveButton(context.getString(R.string.common_confirm)) { _, _ -> ActivityCompat.requestPermissions(activity, permissions, requestCode) }
                     .show()
         } else {
             ActivityCompat.requestPermissions(activity, permissions, requestCode)
@@ -29,14 +30,7 @@ object PermissionUtils {
     }
 
     fun checkPermission(context: Context, permissions: Array<String>): Boolean {
-        var isValid = true
-        for (permission in permissions) {
-            if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_DENIED) {
-                isValid = false
-                break
-            }
-        }
-        return isValid
+        return permissions.filter { it -> ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_DENIED }.isEmpty()
     }
 
 }

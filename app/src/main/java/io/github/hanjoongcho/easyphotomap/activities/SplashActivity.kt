@@ -6,10 +6,10 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.widget.TextView
 import io.github.hanjoongcho.commons.utils.FontUtils
 import io.github.hanjoongcho.easyphotomap.R
 import io.github.hanjoongcho.easyphotomap.Constants
+import kotlinx.android.synthetic.main.activity_splash.*
 
 /**
  * Created by CHO HANJOONG on 2017-08-31.
@@ -20,8 +20,6 @@ class SplashActivity : Activity(), Handler.Callback {
         setContentView(R.layout.activity_splash)
 
         val typeFace = FontUtils.getTypeface(assets, "NanumGothic.ttf")
-        val companyName: TextView = findViewById(R.id.companyName)
-        val appName: TextView = findViewById(R.id.appName)
         companyName.setTypeface(typeFace, Typeface.BOLD)
         appName.setTypeface(typeFace, Typeface.BOLD)
 

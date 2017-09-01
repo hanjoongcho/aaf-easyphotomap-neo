@@ -1,4 +1,16 @@
 <resources>
-    <string name="app_name">Easy Photo Map</string>
+    <string name="app_name">Easy Photo Map NEO</string>
     <string name="title_activity_maps">Easy\nPhotoMap</string>
+
+    <!--DialogUtils-->
+    <string name="common_confirm">OK</string>
+    <string name="common_cancel">CANCEL</string>
+
+    <!--PermissionUtils-->
+    <string name="confirmPermission_title">Permission Request</string>
+    <string name="confirmPermission_message">Permissions is required to use Easy Photo Map.</string>
+
+    <!--MapsActivity-->
+    <string name="common_no_permission">Insufficient permission for the requested feature.</string>
+
 </resources>

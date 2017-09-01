@@ -12,20 +12,25 @@
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:id="@+id/camera"
+                android:onClick="onItemClick"
                 android:src="@drawable/camera"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:id="@+id/gallery"
+                android:onClick="onItemClick"
                 android:src="@drawable/image"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:onClick="onItemClick"
                 android:src="@drawable/folder"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
     </LinearLayout>
 
@@ -52,26 +57,30 @@
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:onClick="onItemClick"
                 android:src="@drawable/marker"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:onClick="onItemClick"
                 android:src="@drawable/search"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:onClick="onItemClick"
                 android:src="@drawable/timeline"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:onClick="onItemClick"
                 android:src="@drawable/settings"
-                style="@style/WrapWidthHeight" />
+                style="@style/MainMenuItem" />
         </LinearLayout>
     </LinearLayout>
 

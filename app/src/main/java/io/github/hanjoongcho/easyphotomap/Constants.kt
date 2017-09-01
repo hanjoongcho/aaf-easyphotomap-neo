@@ -18,14 +18,14 @@ class Constants {
         // permissions
         val EXTERNAL_STORAGE_PERMISSIONS = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
 
-        // startActivityForResult Request Code: Permission
-        val REQUEST_CODE_EXTERNAL_STORAGE = 1
+        // request code
+        val REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA  = 100
+        val REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GALLERY = 101
 
         // etc
         val GOOGLE_MAP_DEFAULT_ZOOM_VALUE = 13.0f
         val GOOGLE_MAP_DEFAULT_LATITUDE = 37.3997208
         val GOOGLE_MAP_DEFAULT_LONGITUDE = 127.1000782
-
 
     }
 }

@@ -1,12 +1,15 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import io.github.hanjoongcho.commons.utils.DialogUtils
 import io.github.hanjoongcho.commons.utils.PermissionUtils
 import io.github.hanjoongcho.easyphotomap.Constants
 import io.github.hanjoongcho.easyphotomap.R
@@ -24,8 +27,6 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        checkPermissions();
     }
 
     /**
@@ -44,34 +45,54 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 Constants.GOOGLE_MAP_DEFAULT_ZOOM_VALUE))
     }
 
+    fun onItemClick(view: View) {
+        when (view.id) {
+            R.id.camera -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA)
+            R.id.gallery -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GALLERY)
+            else -> DialogUtils.makeSnackBar(findViewById(android.R.id.content), "no match")
+        }
+
+    }
+
     private fun initWorkingDirectory() {
         if (!File(Constants.WORKING_DIRECTORY).exists()) {
             File(Constants.WORKING_DIRECTORY).mkdirs()
         }
     }
 
-    private fun checkPermissions() {
-        if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
-            // API Level 22 이하이거나 API Level 23 이상이면서 권한취득 한경우
-            initWorkingDirectory();
-        } else {
-            // API Level 23 이상이면서 권한취득 안한경우
-            PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, Constants.REQUEST_CODE_EXTERNAL_STORAGE)
+    private fun startCameraActivity() {
+        initWorkingDirectory()
+    }
+
+    private fun runAfterPermissionCheck(requestCode: Int) {
+        when (requestCode) {
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA -> {
+                if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
+                    startCameraActivity()
+                } else {
+                    PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, requestCode)
+                }
+            }
         }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if ((grantResults.filter { it -> it == PackageManager.PERMISSION_DENIED }).isNotEmpty()) {
+            DialogUtils.makeSnackBar(findViewById(android.R.id.content), getString(R.string.common_no_permission))
+            return
+        }
+
         when (requestCode) {
-            Constants.REQUEST_CODE_EXTERNAL_STORAGE -> if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
-                // 권한이 있는경우
-                initWorkingDirectory();
-            } else {
-                // 권한이 없는경우
-//                DialogUtils.makeSnackBar(findViewById(android.R.id.content), getString(R.string.guide_message_3))
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA -> {
+                startCameraActivity()
             }
             else -> {
             }
         }
     }
+
+
 }

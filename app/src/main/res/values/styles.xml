@@ -20,4 +20,8 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="MainMenuItem" parent="WrapWidthHeight">
+        <item name="android:background">@drawable/ic_click</item>
+    </style>
+
 </resources>
