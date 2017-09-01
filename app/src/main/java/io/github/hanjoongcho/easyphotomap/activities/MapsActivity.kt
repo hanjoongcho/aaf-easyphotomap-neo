@@ -1,5 +1,6 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
@@ -49,6 +50,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         when (view.id) {
             R.id.camera -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA)
             R.id.gallery -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GALLERY)
+            R.id.explorer -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER)
             else -> DialogUtils.makeSnackBar(findViewById(android.R.id.content), "no match")
         }
 
@@ -64,11 +66,23 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         initWorkingDirectory()
     }
 
+    private fun startExplorerActivity() {
+        initWorkingDirectory()
+        startActivity(Intent(this, FileExplorerActivity::class.java))
+    }
+
     private fun runAfterPermissionCheck(requestCode: Int) {
         when (requestCode) {
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA -> {
                 if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
                     startCameraActivity()
+                } else {
+                    PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, requestCode)
+                }
+            }
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER -> {
+                if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
+                    startExplorerActivity()
                 } else {
                     PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, requestCode)
                 }
@@ -89,10 +103,12 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA -> {
                 startCameraActivity()
             }
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER -> {
+                startCameraActivity()
+            }
             else -> {
             }
         }
     }
-
 
 }

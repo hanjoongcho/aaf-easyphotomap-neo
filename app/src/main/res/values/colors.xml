@@ -4,5 +4,11 @@
     <color name="color_primary_dark">#01549c</color>
     <color name="color_accent">#FF0000</color>
 
-    <color name="intro_text">#FFFFFF</color>
+    <color name="splash_text">#FFFFFF</color>
+
+    <color name="file_explorer_bg">#ffd4d3d3</color>
+    <color name="file_explorer_file_list_bg">#ffffff</color>
+
+    <color name="file_explorer_text">#5a5959</color>
+
 </resources>

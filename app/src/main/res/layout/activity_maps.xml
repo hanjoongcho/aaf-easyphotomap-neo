@@ -28,6 +28,7 @@
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:id="@+id/explorer"
                 android:onClick="onItemClick"
                 android:src="@drawable/folder"
                 style="@style/MainMenuItem" />

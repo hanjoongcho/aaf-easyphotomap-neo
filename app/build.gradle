@@ -37,7 +37,12 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
+    // apache commons
+    compile 'org.apache.commons:commons-lang3:3.0'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
 
+    // drewnoakes
+    compile group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.8.1'
 }
 
 buildscript {
