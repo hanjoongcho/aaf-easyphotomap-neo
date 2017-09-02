@@ -104,7 +104,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 startCameraActivity()
             }
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER -> {
-                startCameraActivity()
+                startExplorerActivity()
             }
             else -> {
             }

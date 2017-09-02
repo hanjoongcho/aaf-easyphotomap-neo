@@ -9,6 +9,7 @@ import android.os.Environment
 import android.os.Looper
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ import io.github.hanjoongcho.easyphotomap.models.PhotoMapItem
 import kotlinx.android.synthetic.main.activity_file_explorer.*
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.util.*
 
@@ -115,23 +117,25 @@ class FileExplorerActivity : AppCompatActivity() {
         override fun run() {
             listFileExplorerFile?.clear()
             listFileExplorerDirectory?.clear()
-            val fileNames = File(currentPath).list()
-            for (fileName in fileNames) {
-                val explorerFile = FileExplorerItem()
-                val path = currentPath + "/" + fileName
-                var name = ""
-                val file = File(path)
-                if (file.isDirectory) {
-                    name = "[$fileName]"
-                    explorerFile.setImagePathAndFileName(name)
-                    explorerFile.isDirectory = true
-                    listFileExplorerDirectory?.add(explorerFile)
-                } else {
-                    name = fileName
-                    val extension = FilenameUtils.getExtension(name).toLowerCase()
-                    if (!extension.matches("jpg|jpeg".toRegex())) continue
-                    explorerFile.setImagePathAndFileName(path)
-                    listFileExplorerFile?.add(explorerFile)
+            val fileNames: Array<String>? = File(currentPath).list()
+            fileNames?.let {
+                for (fileName in fileNames) {
+                    val explorerFile = FileExplorerItem()
+                    val path = currentPath + "/" + fileName
+                    var name = ""
+                    val file = File(path)
+                    if (file.isDirectory) {
+                        name = "[$fileName]"
+                        explorerFile.setImagePathAndFileName(name)
+                        explorerFile.isDirectory = true
+                        listFileExplorerDirectory?.add(explorerFile)
+                    } else {
+                        name = fileName
+                        val extension = FilenameUtils.getExtension(name).toLowerCase()
+                        if (!extension.matches("jpg|jpeg".toRegex())) continue
+                        explorerFile.setImagePathAndFileName(path)
+                        listFileExplorerFile?.add(explorerFile)
+                    }
                 }
             }
 
@@ -143,7 +147,7 @@ class FileExplorerActivity : AppCompatActivity() {
                 Collections.sort(listFileExplorerFile)
             }
             listFileExplorerFile?.addAll(0, listFileExplorerDirectory as Collection<FileExplorerItem>)
-            listFileExplorerFile?.add(0, previous)
+            if (StringUtils.split(currentPath, "/").size > 1) listFileExplorerFile?.add(0, previous)
             android.os.Handler(Looper.getMainLooper()).post { fileExplorerAdapter?.notifyDataSetInvalidated() }
         }
     }

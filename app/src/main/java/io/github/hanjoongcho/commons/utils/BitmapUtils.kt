@@ -6,10 +6,9 @@ import android.util.LruCache
 /**
  * Created by hanjoong on 2017-09-01.
  */
-
 object BitmapUtils {
 
-    private var mMemoryCache: LruCache<String, Bitmap>? = null
+    private @Volatile var memoryCache: LruCache<String, Bitmap>? = null
 
     init {
         // Get max available VM memory, exceeding this amount will throw an
@@ -20,7 +19,7 @@ object BitmapUtils {
         // Use 1/8th of the available memory for this memory cache.
         val cacheSize = maxMemory / 8
 
-        mMemoryCache = object : LruCache<String, Bitmap>(cacheSize) {
+        memoryCache = object : LruCache<String, Bitmap>(cacheSize) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
                 // The cache size will be measured in kilobytes rather than
                 // number of items.
@@ -30,12 +29,10 @@ object BitmapUtils {
     }
 
     fun addBitmapToMemoryCache(key: String, bitmap: Bitmap) {
-        if (getBitmapFromMemCache(key) == null) {
-            mMemoryCache!!.put(key, bitmap)
-        }
+        if (getBitmapFromMemCache(key) == null) memoryCache?.put(key, bitmap)
     }
 
     fun getBitmapFromMemCache(key: String): Bitmap? {
-        return mMemoryCache!!.get(key)
+        return memoryCache?.get(key)
     }
 }
