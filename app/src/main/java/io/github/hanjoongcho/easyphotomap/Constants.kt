@@ -27,6 +27,11 @@ class Constants {
         val GOOGLE_MAP_DEFAULT_ZOOM_VALUE = 13.0f
         val GOOGLE_MAP_DEFAULT_LATITUDE = 37.3997208
         val GOOGLE_MAP_DEFAULT_LONGITUDE = 127.1000782
+        val PREVIOUS_DIRECTORY = ".."
+
+        // setting
+        val SETTING_FILE_EXPLORER_ENABLE_REVERSE_ORDER = "setting_file_explorer_enable_reverse_order"
+        val SETTING_ENABLE_CREATE_COPY = "enable_create_copy"
 
     }
 }

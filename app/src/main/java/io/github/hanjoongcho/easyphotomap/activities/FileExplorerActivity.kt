@@ -2,6 +2,7 @@ package io.github.hanjoongcho.easyphotomap.activities
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -19,8 +20,7 @@ import android.widget.TextView
 import com.drew.imaging.jpeg.JpegMetadataReader
 import com.drew.metadata.exif.ExifSubIFDDirectory
 import com.drew.metadata.exif.GpsDirectory
-import io.github.hanjoongcho.commons.utils.CommonUtils
-import io.github.hanjoongcho.commons.utils.PreferenceUtils
+import io.github.hanjoongcho.commons.utils.*
 import io.github.hanjoongcho.easyphotomap.Constants
 import io.github.hanjoongcho.easyphotomap.R
 import io.github.hanjoongcho.easyphotomap.adapters.ExplorerItemAdapter
@@ -45,7 +45,7 @@ class FileExplorerActivity : AppCompatActivity() {
     private val previous: FileExplorerItem = FileExplorerItem()
     init {
         previous.isDirectory = true
-        previous.fileName = ".."
+        previous.fileName = Constants.PREVIOUS_DIRECTORY
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,10 +66,11 @@ class FileExplorerActivity : AppCompatActivity() {
             val path = currentPath + "/" + fileName
             val file = File(path)
             if (file.isDirectory) {
-                currentPath = if (fileName == "..") currentPath?.substring(0, currentPath!!.lastIndexOf("/")) else path
+                currentPath = if (fileName == Constants.PREVIOUS_DIRECTORY) currentPath?.substring(0, currentPath!!.lastIndexOf("/")) else path
                 this@FileExplorerActivity.refreshList()
             } else {
                 // TODO register photo map
+                registerPhotoMap(this, item.fileName, item.imagePath)
             }
         }
         finishButton.setOnClickListener{ finish() }
@@ -139,7 +140,7 @@ class FileExplorerActivity : AppCompatActivity() {
                 }
             }
 
-            if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, "enable_reverse_order")) {
+            if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_FILE_EXPLORER_ENABLE_REVERSE_ORDER)) {
                 Collections.sort(listFileExplorerDirectory, Collections.reverseOrder<Any>())
                 Collections.sort(listFileExplorerFile, Collections.reverseOrder<Any>())
             } else {
@@ -148,11 +149,11 @@ class FileExplorerActivity : AppCompatActivity() {
             }
             listFileExplorerFile?.addAll(0, listFileExplorerDirectory as Collection<FileExplorerItem>)
             if (StringUtils.split(currentPath, "/").size > 1) listFileExplorerFile?.add(0, previous)
-            android.os.Handler(Looper.getMainLooper()).post { fileExplorerAdapter?.notifyDataSetInvalidated() }
+            android.os.Handler(Looper.getMainLooper()).post { fileExplorerAdapter?.notifyDataSetChanged() }
         }
     }
 
-    fun registerPhotoMap (context: Context, fileName: String?, path: String?) {
+    private fun registerPhotoMap (context: Context, fileName: String?, path: String?) {
         if (fileName != null && path != null) {
             val registerThread = RegisterThread(context, fileName, path)
             registerThread.start()
@@ -163,9 +164,8 @@ class FileExplorerActivity : AppCompatActivity() {
 
         private fun registerSingleFile() {
             try {
-
                 var targetFile: File? = null
-                if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, "enable_create_copy")) {
+                if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_ENABLE_CREATE_COPY)) {
                     targetFile = File(Constants.WORKING_DIRECTORY + fileName)
                     if (!targetFile!!.exists()) {
                         FileUtils.copyFile(File(path), targetFile)
@@ -180,44 +180,33 @@ class FileExplorerActivity : AppCompatActivity() {
                 photoMapItem.imagePath = targetFile.absolutePath
                 val exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
                 val date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())
-                photoMapItem.date = if(date != null) CommonUtils.DATE_TIME_PATTERN.format(date) else getString(R.string.file_explorer_message2)
+                photoMapItem.date = if(date != null) DateUtils.getFullPatternDateWithTime(date) else getString(R.string.file_explorer_register_error_message)
 
                 val gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory::class.java)
                 if (gpsDirectory != null && gpsDirectory.geoLocation != null) {
-                    entity.longitude = gpsDirectory.geoLocation.longitude
-                    entity.latitude = gpsDirectory.geoLocation.latitude
-                    val listAddress = CommonUtils.getFromLocation(this@FileExplorerActivity, entity.latitude, entity.longitude, 1, 0)
-                    if (listAddress.size > 0) {
-                        entity.info = CommonUtils.fullAddress(listAddress.get(0))
+                    photoMapItem.longitude = gpsDirectory.geoLocation.longitude
+                    photoMapItem.latitude = gpsDirectory.geoLocation.latitude
+                    val listAddress = GpsUtils.getFromLocation(this@FileExplorerActivity, photoMapItem.latitude, photoMapItem.longitude, 1, 0)
+                    listAddress?.let {
+                        photoMapItem.info = GpsUtils.fullAddress(listAddress[0])
                     }
+
                     val sb = StringBuilder()
-                    sb.append(entity.imagePath + "|")
-                    sb.append(entity.info + "|")
-                    sb.append(entity.latitude + "|")
-                    sb.append(entity.longitude + "|")
-                    sb.append(entity.date + "\n")
-                    if (CommonUtils.isMatchLine(Constant.PHOTO_DATA_PATH, sb.toString())) {
-                        message.obj = getString(R.string.file_explorer_message3)
-                        registerHandler.sendMessage(message)
-                    } else {
-                        CommonUtils.writeDataFile(sb.toString(), Constant.PHOTO_DATA_PATH, true)
-                        //                        if (!new File(Constant.WORKING_DIRECTORY + fileName + ".thumb").exists()) {
-                        CommonUtils.createScaledBitmap(targetFile.absolutePath, Constant.WORKING_DIRECTORY + fileName + ".thumb", 200)
-                        //                        }
-                        message.obj = getString(R.string.file_explorer_message4)
-                        registerHandler.sendMessage(message)
+                    sb.append(photoMapItem.imagePath + "|")
+                    sb.append(photoMapItem.info + "|")
+                    sb.append(photoMapItem.latitude.toString() + "|")
+                    sb.append(photoMapItem.longitude.toString() + "|")
+                    sb.append(photoMapItem.date + "\n")
+                    android.os.Handler(Looper.getMainLooper()).post {
+                        DialogUtils.showAlertDialog(this@FileExplorerActivity, sb.toString(), DialogInterface.OnClickListener { _, _ ->  } )
                     }
-                } else {
-                    message.obj = entity
-                    registerHandler.sendMessage(message)
+
+//                    CommonUtils.writeDataFile(sb.toString(), Constant.PHOTO_DATA_PATH, true)
+//                    CommonUtils.createScaledBitmap(targetFile.absolutePath, Constant.WORKING_DIRECTORY + fileName + ".thumb", 200)
                 }
             } catch (e: Exception) {
-                AAFLogger.info("FileExplorerActivity-run INFO: " + e.message, javaClass)
-                AAFLogger.info("RegisterThread-run INFO: exception is " + e, javaClass)
-                message.obj = e.message
-                registerHandler.sendMessage(message)
+                Log.i("ERROR", e.message)
             }
-
         }
 
         override fun run() {

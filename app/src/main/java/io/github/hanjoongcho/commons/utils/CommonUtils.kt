@@ -19,7 +19,6 @@ import java.io.IOException
 /**
  * Created by hanjoong on 2017-09-01.
  */
-
 object CommonUtils {
 
     fun getDefaultDisplay(activity: Activity): Point {

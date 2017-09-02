@@ -13,4 +13,7 @@
     <!--MapsActivity-->
     <string name="common_no_permission">Insufficient permission for the requested feature.</string>
 
+    <!--FileExplorerActivity-->
+    <string name="file_explorer_register_error_message">No time information</string>
+
 </resources>
