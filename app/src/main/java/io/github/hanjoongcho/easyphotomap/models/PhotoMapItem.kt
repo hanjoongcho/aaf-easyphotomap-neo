@@ -1,9 +1,15 @@
 package io.github.hanjoongcho.easyphotomap.models
 
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
+
 /**
  * Created by hanjoong on 2017-09-02.
  */
-class PhotoMapItem : Comparable<PhotoMapItem> {
+open class PhotoMapItem : RealmObject() {
+
+    @PrimaryKey
+    var sequence: Int = 0
     var latitude: Double = 0.toDouble()
     var longitude: Double = 0.toDouble()
     var info: String? = null
@@ -20,15 +26,5 @@ class PhotoMapItem : Comparable<PhotoMapItem> {
             info = date
         }
         return info as String
-    }
-
-    override fun compareTo(imageEntity: PhotoMapItem): Int {
-        var result = 0
-        if (sortFlag == 0) {
-            result = info!!.compareTo(imageEntity.info!!)
-        } else if (sortFlag == 1) {
-            result = originDate!!.compareTo(imageEntity.originDate!!)
-        }
-        return result
     }
 }

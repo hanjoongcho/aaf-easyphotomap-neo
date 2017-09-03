@@ -24,6 +24,7 @@ import io.github.hanjoongcho.commons.utils.*
 import io.github.hanjoongcho.easyphotomap.Constants
 import io.github.hanjoongcho.easyphotomap.R
 import io.github.hanjoongcho.easyphotomap.adapters.ExplorerItemAdapter
+import io.github.hanjoongcho.easyphotomap.helpers.PhotoMapDbHelper
 import io.github.hanjoongcho.easyphotomap.models.FileExplorerItem
 import io.github.hanjoongcho.easyphotomap.models.PhotoMapItem
 import kotlinx.android.synthetic.main.activity_file_explorer.*
@@ -191,14 +192,11 @@ class FileExplorerActivity : AppCompatActivity() {
                         photoMapItem.info = GpsUtils.fullAddress(listAddress[0])
                     }
 
-                    val sb = StringBuilder()
-                    sb.append(photoMapItem.imagePath + "|")
-                    sb.append(photoMapItem.info + "|")
-                    sb.append(photoMapItem.latitude.toString() + "|")
-                    sb.append(photoMapItem.longitude.toString() + "|")
-                    sb.append(photoMapItem.date + "\n")
+                    PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
+                    val itemCount = PhotoMapDbHelper.selectPhotoMapItemAll().size
+
                     android.os.Handler(Looper.getMainLooper()).post {
-                        DialogUtils.showAlertDialog(this@FileExplorerActivity, sb.toString(), DialogInterface.OnClickListener { _, _ ->  } )
+                        DialogUtils.showAlertDialog(this@FileExplorerActivity, "itemCount: $itemCount", DialogInterface.OnClickListener { _, _ ->  } )
                     }
 
 //                    CommonUtils.writeDataFile(sb.toString(), Constant.PHOTO_DATA_PATH, true)
