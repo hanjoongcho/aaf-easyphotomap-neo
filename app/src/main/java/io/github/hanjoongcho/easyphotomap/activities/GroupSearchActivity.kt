@@ -1,16 +1,29 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
+import android.app.Activity
+import android.app.ProgressDialog
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Point
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.widget.ArrayAdapter
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import io.github.hanjoongcho.easyphotomap.R
 import io.github.hanjoongcho.easyphotomap.helpers.PhotoMapDbHelper
 import io.github.hanjoongcho.easyphotomap.models.PhotoMapItem
 import kotlinx.android.synthetic.main.activity_group_search.*
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 import java.util.regex.Pattern
+import android.content.Intent
+
+
 
 /**
  * Created by CHO HANJOONG on 2017-09-05.
@@ -22,6 +35,7 @@ class GroupSearchActivity : AppCompatActivity() {
     private var listPhotoMapItem: ArrayList<PhotoMapItem>? = arrayListOf()
     private var recommendMap: HashMap<String, Int>? = hashMapOf()
     private var adapter: ArrayAdapter<Recommendation>? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +79,14 @@ class GroupSearchActivity : AppCompatActivity() {
                 return false
             }
         })
+
+        searchListView.setOnItemClickListener { adapterView, _, position, _ ->
+            val recommendation = adapterView.adapter.getItem(position) as Recommendation
+            val intent = Intent()
+            intent.putExtra("keyword", recommendation.keyWord)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
 
         finishButton.setOnClickListener{ finish() }
     }

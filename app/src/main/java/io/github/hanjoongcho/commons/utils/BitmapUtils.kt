@@ -1,9 +1,10 @@
 package io.github.hanjoongcho.commons.utils
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.app.Activity
+import android.graphics.*
 import android.util.LruCache
 import org.apache.commons.io.IOUtils
+import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 
@@ -67,4 +68,52 @@ object BitmapUtils {
         return result
     }
 
+    fun createScaledBitmap(bitmap: Bitmap, point: Point, scaleFactorX: Float, scaleFactorY: Float): Bitmap? {
+        var downscaledBitmap: Bitmap? = null
+        val fixedWidth = point.x * scaleFactorX
+        val fixedHeight = point.y * scaleFactorY
+        try {
+            val height = bitmap.height
+            val width = bitmap.width
+            val downSampleWidth = width / height.toFloat() * fixedHeight
+            val downSampleHeight = height / width.toFloat() * fixedWidth
+            downscaledBitmap = when {
+                // 가로이미지 & 세로보기 화면에서는 width값에 맞춰 고정함
+                (width > height && point.x < point.y) -> Bitmap.createScaledBitmap(bitmap, fixedWidth.toInt(), downSampleHeight.toInt(), false)
+                // 가로이미지 & 가로보기 화면에서는 height값에 맞춰 고정함
+                (width > height && point.x > point.y) -> Bitmap.createScaledBitmap(bitmap, downSampleWidth.toInt(), fixedHeight.toInt(), false)
+                (width < height) -> Bitmap.createScaledBitmap(bitmap, downSampleWidth.toInt(), fixedHeight.toInt(), false)
+                (width == height) -> Bitmap.createScaledBitmap(bitmap, downSampleWidth.toInt(), fixedHeight.toInt(), false)
+                else -> { bitmap }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return downscaledBitmap
+    }
+
+    fun addWhiteBorder(bmp: Bitmap, borderSize: Int): Bitmap {
+        val bmpWithBorder = Bitmap.createBitmap(bmp.width + borderSize * 2, bmp.height + borderSize * 2, bmp.config)
+        val canvas = Canvas(bmpWithBorder)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(bmp, borderSize.toFloat(), borderSize.toFloat(), null)
+        return bmpWithBorder
+    }
+
+    fun decodeFile(activity: Activity, imagePath: String): Bitmap? {
+        return decodeFile(activity, imagePath, null)
+    }
+
+    fun decodeFile(activity: Activity, imagePath: String, options: BitmapFactory.Options?): Bitmap? {
+        return when (imagePath != null && File(imagePath).exists()) {
+            true -> {
+                if (options == null) {
+                    BitmapFactory.decodeFile(imagePath)
+                } else {
+                    BitmapFactory.decodeFile(imagePath, options)
+                }
+            }
+            false -> BitmapFactory.decodeResource(activity.resources, android.R.drawable.ic_menu_gallery)
+        }
+    }
 }

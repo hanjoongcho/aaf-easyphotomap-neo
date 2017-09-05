@@ -1,20 +1,35 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.os.Bundle
+import android.os.Looper
 import android.support.v4.app.FragmentActivity
 import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.Cluster
+import com.google.maps.android.clustering.ClusterItem
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
+import com.google.maps.android.ui.IconGenerator
+import io.github.hanjoongcho.commons.utils.BitmapUtils
+import io.github.hanjoongcho.commons.utils.CommonUtils
 import io.github.hanjoongcho.commons.utils.DialogUtils
 import io.github.hanjoongcho.commons.utils.PermissionUtils
 import io.github.hanjoongcho.easyphotomap.Constants
 import io.github.hanjoongcho.easyphotomap.R
+import io.github.hanjoongcho.easyphotomap.helpers.PhotoMapDbHelper
+import io.github.hanjoongcho.easyphotomap.models.PhotoMapItem
+import org.apache.commons.io.FilenameUtils
 import java.io.File
+import java.util.*
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
@@ -74,7 +89,17 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     private fun startGroupSearchActivity() {
         initWorkingDirectory()
-        startActivity(Intent(this, GroupSearchActivity::class.java))
+        startActivityForResult(Intent(this, GroupSearchActivity::class.java), Constants.REQUEST_CODE_GROUP_SEARCH)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (resultCode == Activity.RESULT_OK) {
+            true -> {
+                overlayIcons(data?.getStringExtra("keyword")!!, false)
+            }
+            false -> {}
+        }
     }
 
     private fun runAfterPermissionCheck(requestCode: Int) {
@@ -125,6 +150,153 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             else -> {
             }
         }
+    }
+
+    private fun overlayIcons(keyword: String, applyFilter: Boolean) {
+        val overlayThread = OverlayThread(keyword, applyFilter)
+        parseMetadata()
+        overlayThread.start()
+    }
+
+    private var listPhotoMapItem: ArrayList<PhotoMapItem> = arrayListOf()
+    private var listPhotoMapItemOverlay: ArrayList<PhotoMapItem> = arrayListOf()
+    internal var listLatLng: ArrayList<LatLng> = arrayListOf()
+    internal var listMarkerOptions: ArrayList<MarkerOptions> = arrayListOf()
+
+    inner class OverlayThread(private var keyword: String, var applyFilter: Boolean) : Thread() {
+
+        override fun run() {
+            super.run()
+            // FIXME Realm access from incorrect thread. Realm objects can only be accessed on the thread they were created.
+            listPhotoMapItem.clear()
+            listPhotoMapItem = PhotoMapDbHelper.selectPhotoMapItemAll()
+            Collections.sort(listPhotoMapItem)
+
+            listLatLng.clear()
+            listMarkerOptions.clear()
+            listPhotoMapItemOverlay.clear()
+            for (photoMapItem in listPhotoMapItem) {
+                if (!photoMapItem.info!!.contains(keyword)) continue
+                var image: BitmapDescriptor? = null
+                val options = MarkerOptions()
+                val latLng = LatLng(photoMapItem.latitude, photoMapItem.longitude)
+                options.position(latLng)
+                val fileName = FilenameUtils.getName(photoMapItem.imagePath)
+                val bm = BitmapUtils.decodeFile(this@MapsActivity, Constants.WORKING_DIRECTORY + FilenameUtils.getBaseName(fileName) + ".thumb")
+                val point = Point(bm!!.width, bm.height)
+                val fixedWidthHeight = .8F
+                val bm2 = BitmapUtils.createScaledBitmap(bm, point, fixedWidthHeight, fixedWidthHeight)
+                image = BitmapDescriptorFactory.fromBitmap(BitmapUtils.addWhiteBorder(bm2!!, CommonUtils.dpToPixel(this@MapsActivity, 3)))
+                options.icon(image)
+                listMarkerOptions.add(options)
+                listPhotoMapItemOverlay.add(photoMapItem)
+            }
+
+            android.os.Handler(Looper.getMainLooper()).post {
+                setUpCluster()
+
+                for (i in listMarkerOptions.indices) {
+                    val item = MyItem(listMarkerOptions[i], listPhotoMapItem[i])
+                    clusterManager?.addItem(item)
+                    listLatLng.add(listMarkerOptions[i].position)
+                }
+
+                map?.setOnMarkerClickListener(clusterManager)
+                map?.setOnCameraChangeListener(clusterManager)
+
+                val clusterRenderer = MyClusterRenderer(this@MapsActivity, map!!, clusterManager!!)
+                clusterManager?.setRenderer(clusterRenderer)
+                clusterManager?.setOnClusterClickListener { _ ->
+                    map?.setInfoWindowAdapter(null)
+                    false
+                }
+//                clusterManager?.setOnClusterItemClickListener {item ->
+//                    map?.setInfoWindowAdapter(InfoWindow(
+//                            item.photoMapItem.info,
+//                            item.photoMapItem.imagePath,
+//                            item.photoMapItem.latitude,
+//                            item.photoMapItem.longitude,
+//                            item.photoMapItem.date
+//                    ))
+//                    val fImagePath = item.getPhotoEntity().imagePath
+//                    map?.setOnInfoWindowClickListener(GoogleMap.OnInfoWindowClickListener {
+//                        val imageViewIntent = Intent(this@MapsActivity, PopupImageActivity::class.java)
+//                        imageViewIntent.putExtra("imagePath", fImagePath)
+//                        startActivity(imageViewIntent)
+//                    })
+//                    false
+//                }
+
+                val builder = LatLngBounds.Builder()
+                for (latLng in listLatLng) {
+                    builder.include(latLng)
+                }
+                val bounds = builder.build()
+                map?.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200))
+            }
+        }
+    }
+
+    private var clusterManager: ClusterManager<MyItem>? = null
+    private fun setUpCluster() {
+        clusterManager = clusterManager ?: ClusterManager<MyItem>(this, map)
+        clusterManager?.clearItems()
+    }
+
+    internal inner class MyItem(val markerOptions: MarkerOptions, val photoMapItem: PhotoMapItem) : ClusterItem {
+        override fun getPosition(): LatLng {
+            return markerOptions.position
+        }
+    }
+
+    internal inner class MyClusterRenderer(context: Context, map: GoogleMap,
+                                           clusterManager: ClusterManager<MyItem>) : DefaultClusterRenderer<MyItem>(context, map, clusterManager), GoogleMap.OnCameraChangeListener {
+        private var mClusterIconGenerator: IconGenerator? = null
+        private var mapZoom: Float = 0.toFloat()
+
+        init {
+            mClusterIconGenerator = IconGenerator(applicationContext)
+        }
+
+        override fun getCluster(marker: Marker): Cluster<MyItem> {
+            return super.getCluster(marker)
+        }
+
+        override fun onBeforeClusterRendered(cluster: Cluster<MyItem>, markerOptions: MarkerOptions) {
+            super.onBeforeClusterRendered(cluster, markerOptions)
+        }
+
+        override fun onBeforeClusterItemRendered(item: MyItem?,
+                                                 markerOptions: MarkerOptions?) {
+            super.onBeforeClusterItemRendered(item, markerOptions)
+            markerOptions!!.icon(item!!.markerOptions.icon)
+        }
+
+        override fun onClusterItemRendered(clusterItem: MyItem?, marker: Marker?) {
+            super.onClusterItemRendered(clusterItem, marker)
+        }
+
+        override fun shouldRenderAsCluster(cluster: Cluster<MyItem>): Boolean {
+            return if (mapZoom > Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE - 1) {
+                false
+            } else {
+                cluster.size > 50
+            }
+
+        }
+
+        override fun onCameraChange(cameraPosition: CameraPosition) {
+            if (cameraPosition.zoom > Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE) {
+                map?.animateCamera(CameraUpdateFactory.zoomTo(Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE))
+            }
+            mapZoom = cameraPosition.zoom
+        }
+    }
+
+    private fun parseMetadata() {
+        listPhotoMapItem?.clear()
+        listPhotoMapItem = PhotoMapDbHelper.selectPhotoMapItemAll()
+        Collections.sort(listPhotoMapItem)
     }
 
 }

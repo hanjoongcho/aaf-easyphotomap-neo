@@ -33,6 +33,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:design:26.+'
     compile 'com.google.android.gms:play-services-maps:11.0.4'
+    compile 'com.google.maps.android:android-maps-utils:0.4'
 
     // jetbrains
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
