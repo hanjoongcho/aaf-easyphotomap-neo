@@ -6,7 +6,7 @@ import io.realm.annotations.PrimaryKey
 /**
  * Created by hanjoong on 2017-09-02.
  */
-open class PhotoMapItem : RealmObject() {
+open class PhotoMapItem : RealmObject(), Comparable<PhotoMapItem> {
 
     @PrimaryKey
     var sequence: Int = 0
@@ -26,5 +26,14 @@ open class PhotoMapItem : RealmObject() {
             info = date
         }
         return info as String
+    }
+
+    override operator fun compareTo(item: PhotoMapItem): Int {
+        var result: Int = when (sortFlag) {
+            0 -> (info as String).compareTo(item.info as String)
+            1 -> (originDate as String).compareTo(item.originDate as String)
+            else -> -1
+        }
+        return result
     }
 }

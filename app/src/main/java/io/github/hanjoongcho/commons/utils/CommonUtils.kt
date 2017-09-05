@@ -6,15 +6,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.util.TypedValue
-import android.view.Display
 
 import com.drew.imaging.jpeg.JpegMetadataReader
 import com.drew.imaging.jpeg.JpegProcessingException
-import com.drew.metadata.Metadata
 import com.drew.metadata.exif.GpsDirectory
 
 import java.io.File
 import java.io.IOException
+import java.util.*
+import kotlin.collections.Map.Entry
 
 /**
  * Created by hanjoong on 2017-09-01.

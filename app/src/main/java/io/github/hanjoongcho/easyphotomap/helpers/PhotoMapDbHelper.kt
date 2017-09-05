@@ -57,4 +57,11 @@ object PhotoMapDbHelper {
         return list
     }
 
+//    fun selectPhotoMapItemBy(keyword: String): ArrayList<PhotoMapItem> {
+//        val realmResults = getRealmInstance().where(PhotoMapItem::class.java).equalTo("dateString", dateString).findAllSorted("sequence", Sort.DESCENDING)
+//        val list = arrayListOf<PhotoMapItem>()
+//        list.addAll(realmResults.subList(0, realmResults.size))
+//        return list
+//    }
+
 }

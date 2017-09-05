@@ -1,16 +1,13 @@
 package io.github.hanjoongcho.easyphotomap.activities
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
@@ -164,6 +161,7 @@ class FileExplorerActivity : AppCompatActivity() {
     inner class RegisterThread(var context: Context, private var fileName: String, private var path: String) : Thread() {
 
         private fun registerSingleFile() {
+            var resultMessage: String = getString(R.string.file_explorer_register_complete)
             try {
                 var targetFile: File? = null
                 if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_ENABLE_CREATE_COPY)) {
@@ -193,16 +191,15 @@ class FileExplorerActivity : AppCompatActivity() {
                     }
 
                     val result = BitmapUtils.createScaledBitmap(targetFile.absolutePath, Constants.WORKING_DIRECTORY + fileName + ".thumb", 200)
-                    if (result) {
-                        PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
-                        val itemCount = PhotoMapDbHelper.selectPhotoMapItemAll().size
-                        android.os.Handler(Looper.getMainLooper()).post {
-                            DialogUtils.showAlertDialog(this@FileExplorerActivity, "itemCount: $itemCount", DialogInterface.OnClickListener { _, _ ->  } )
-                        }
-                    }
+                    if (result) PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
                 }
             } catch (e: Exception) {
-                Log.i("ERROR", e.message)
+                val errorMessage = e.message
+                resultMessage = "ERROR: $errorMessage"
+            }
+
+            android.os.Handler(Looper.getMainLooper()).post {
+                DialogUtils.showAlertDialog(this@FileExplorerActivity, resultMessage, DialogInterface.OnClickListener { _, _ ->  } )
             }
         }
 

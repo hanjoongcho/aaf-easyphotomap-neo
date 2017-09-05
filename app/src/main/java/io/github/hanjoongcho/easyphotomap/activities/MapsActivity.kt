@@ -51,6 +51,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             R.id.camera -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA)
             R.id.gallery -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GALLERY)
             R.id.explorer -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER)
+            R.id.groupSearch -> runAfterPermissionCheck(Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GROUP_SEARCH)
             else -> DialogUtils.makeSnackBar(findViewById(android.R.id.content), "no match")
         }
 
@@ -71,6 +72,11 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
         startActivity(Intent(this, FileExplorerActivity::class.java))
     }
 
+    private fun startGroupSearchActivity() {
+        initWorkingDirectory()
+        startActivity(Intent(this, GroupSearchActivity::class.java))
+    }
+
     private fun runAfterPermissionCheck(requestCode: Int) {
         when (requestCode) {
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_CAMERA -> {
@@ -83,6 +89,13 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER -> {
                 if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
                     startExplorerActivity()
+                } else {
+                    PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, requestCode)
+                }
+            }
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GROUP_SEARCH -> {
+                if (PermissionUtils.checkPermission(this, Constants.EXTERNAL_STORAGE_PERMISSIONS)) {
+                    startGroupSearchActivity()
                 } else {
                     PermissionUtils.confirmPermission(this, this, Constants.EXTERNAL_STORAGE_PERMISSIONS, requestCode)
                 }
@@ -105,6 +118,9 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
             }
             Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_EXPLORER -> {
                 startExplorerActivity()
+            }
+            Constants.REQUEST_CODE_EXTERNAL_STORAGE_PERMISSIONS_FOR_GROUP_SEARCH -> {
+                startGroupSearchActivity()
             }
             else -> {
             }

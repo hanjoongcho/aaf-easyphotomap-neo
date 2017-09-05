@@ -15,5 +15,9 @@
 
     <!--FileExplorerActivity-->
     <string name="file_explorer_register_error_message">No time information</string>
+    <string name="file_explorer_register_complete">Register Completed</string>
+
+    <!--GroupSearchActivity-->
+    <string name="recommendation_group_count_case">cases</string>
 
 </resources>

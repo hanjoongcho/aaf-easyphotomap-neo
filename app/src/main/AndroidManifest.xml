@@ -40,6 +40,7 @@
         </activity>
         <activity android:name=".activities.MapsActivity" android:label="" android:theme="@style/AppTheme" />
         <activity android:name=".activities.FileExplorerActivity" android:label="" android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.GroupSearchActivity" android:label="" android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

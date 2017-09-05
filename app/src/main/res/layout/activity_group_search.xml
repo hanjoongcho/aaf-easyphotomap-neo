@@ -1,0 +1,41 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="@dimen/common_view_padding"
+        android:background="@color/file_explorer_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.SearchView
+            android:background="@drawable/bg_search_view"
+            android:id="@+id/groupSearch"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/group_search_view_height">
+        </android.support.v7.widget.SearchView>
+
+        <ListView
+            android:layout_marginTop="@dimen/common_view_padding"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:background="@drawable/bg_file_explorer_card"
+            android:drawSelectorOnTop="true"
+            android:id="@+id/searchListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/finishButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/common_floating_button_margin"
+        app:srcCompat="@drawable/marker" />
+
+</android.support.design.widget.CoordinatorLayout>

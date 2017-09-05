@@ -31,7 +31,7 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <!--item_file_explorer style-->
+    <!--item_file_explorer.xml-->
     <style name="item_file_explorer_info">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
@@ -39,6 +39,11 @@
         <item name="android:textSize">12dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">10dp</item>
+    </style>
+
+    <!--item_group_search.xml-->
+    <style name="item_group_search" parent="item_file_explorer_info">
+        <item name="android:layout_height">60dp</item>
     </style>
 
 </resources>

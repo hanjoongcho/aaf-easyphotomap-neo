@@ -58,6 +58,7 @@
         <LinearLayout
             style="@style/MainMenuOuter">
             <ImageView
+                android:id="@+id/groupSearch"
                 android:onClick="onItemClick"
                 android:src="@drawable/marker"
                 style="@style/MainMenuItem" />
