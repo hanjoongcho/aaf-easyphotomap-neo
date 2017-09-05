@@ -1,7 +1,11 @@
 package io.github.hanjoongcho.commons.utils
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.LruCache
+import org.apache.commons.io.IOUtils
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 /**
  * Created by hanjoong on 2017-09-01.
@@ -35,4 +39,32 @@ object BitmapUtils {
     fun getBitmapFromMemCache(key: String): Bitmap? {
         return memoryCache?.get(key)
     }
+
+    fun createScaledBitmap(srcPath: String, destPath: String, fixedWidthHeight: Int): Boolean {
+        var result = true
+        var outputStream: OutputStream? = null
+        try {
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = false
+            options.inSampleSize = 20
+            val bitmap = BitmapFactory.decodeFile(srcPath, options)
+            val height = bitmap.height
+            val width = bitmap.width
+            val downSampleHeight = height / width.toFloat() * fixedWidthHeight
+            val downSampleWidth = width / height.toFloat() * fixedWidthHeight
+            var thumbNail: Bitmap? = null
+            thumbNail = when (width > height) {
+                true -> Bitmap.createScaledBitmap(bitmap, fixedWidthHeight, downSampleHeight.toInt(), false)
+                false -> Bitmap.createScaledBitmap(bitmap, downSampleWidth.toInt(), fixedWidthHeight, false)
+            }
+            outputStream = FileOutputStream(destPath)
+            thumbNail!!.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        } catch (e: Exception) {
+            result = false
+        } finally {
+            IOUtils.closeQuietly(outputStream)
+        }
+        return result
+    }
+
 }

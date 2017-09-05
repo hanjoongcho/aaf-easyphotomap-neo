@@ -161,7 +161,7 @@ class FileExplorerActivity : AppCompatActivity() {
         }
     }
 
-    inner class RegisterThread(var context: Context, var fileName: String, var path: String) : Thread() {
+    inner class RegisterThread(var context: Context, private var fileName: String, private var path: String) : Thread() {
 
         private fun registerSingleFile() {
             try {
@@ -192,15 +192,14 @@ class FileExplorerActivity : AppCompatActivity() {
                         photoMapItem.info = GpsUtils.fullAddress(listAddress[0])
                     }
 
-                    PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
-                    val itemCount = PhotoMapDbHelper.selectPhotoMapItemAll().size
-
-                    android.os.Handler(Looper.getMainLooper()).post {
-                        DialogUtils.showAlertDialog(this@FileExplorerActivity, "itemCount: $itemCount", DialogInterface.OnClickListener { _, _ ->  } )
+                    val result = BitmapUtils.createScaledBitmap(targetFile.absolutePath, Constants.WORKING_DIRECTORY + fileName + ".thumb", 200)
+                    if (result) {
+                        PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
+                        val itemCount = PhotoMapDbHelper.selectPhotoMapItemAll().size
+                        android.os.Handler(Looper.getMainLooper()).post {
+                            DialogUtils.showAlertDialog(this@FileExplorerActivity, "itemCount: $itemCount", DialogInterface.OnClickListener { _, _ ->  } )
+                        }
                     }
-
-//                    CommonUtils.writeDataFile(sb.toString(), Constant.PHOTO_DATA_PATH, true)
-//                    CommonUtils.createScaledBitmap(targetFile.absolutePath, Constant.WORKING_DIRECTORY + fileName + ".thumb", 200)
                 }
             } catch (e: Exception) {
                 Log.i("ERROR", e.message)
