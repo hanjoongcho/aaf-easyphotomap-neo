@@ -15,6 +15,7 @@
 
     <!--FileExplorerActivity-->
     <string name="file_explorer_register_error_message">No time information</string>
+    <string name="file_explorer_register_error_message2">It\'s already registered.</string>
     <string name="file_explorer_register_complete">Register Completed</string>
 
     <!--GroupSearchActivity-->

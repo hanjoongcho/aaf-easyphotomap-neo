@@ -138,13 +138,13 @@ class FileExplorerActivity : AppCompatActivity() {
                 }
             }
 
-            if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_FILE_EXPLORER_ENABLE_REVERSE_ORDER)) {
+//            if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_FILE_EXPLORER_ENABLE_REVERSE_ORDER)) {
                 Collections.sort(listFileExplorerDirectory, Collections.reverseOrder<Any>())
                 Collections.sort(listFileExplorerFile, Collections.reverseOrder<Any>())
-            } else {
-                Collections.sort(listFileExplorerDirectory)
-                Collections.sort(listFileExplorerFile)
-            }
+//            } else {
+//                Collections.sort(listFileExplorerDirectory)
+//                Collections.sort(listFileExplorerFile)
+//            }
             listFileExplorerFile?.addAll(0, listFileExplorerDirectory as Collection<FileExplorerItem>)
             if (StringUtils.split(currentPath, "/").size > 1) listFileExplorerFile?.add(0, previous)
             android.os.Handler(Looper.getMainLooper()).post { fileExplorerAdapter?.notifyDataSetChanged() }
@@ -161,8 +161,9 @@ class FileExplorerActivity : AppCompatActivity() {
     inner class RegisterThread(var context: Context, private var fileName: String, private var path: String) : Thread() {
 
         private fun registerSingleFile() {
-            var resultMessage: String = getString(R.string.file_explorer_register_complete)
+            var resultMessage: String? = null
             try {
+
                 var targetFile: File? = null
                 if (PreferenceUtils.loadBooleanPreference(this@FileExplorerActivity, Constants.SETTING_ENABLE_CREATE_COPY)) {
                     targetFile = File(Constants.WORKING_DIRECTORY + fileName)
@@ -177,6 +178,11 @@ class FileExplorerActivity : AppCompatActivity() {
                 val metadata = JpegMetadataReader.readMetadata(targetFile)
                 val photoMapItem = PhotoMapItem()
                 photoMapItem.imagePath = targetFile.absolutePath
+
+                // check duplication
+                val tempList = PhotoMapDbHelper.selectPhotoMapItemBy(photoMapItem, "imagePath", photoMapItem.imagePath!!)
+                if (tempList.size > 0) throw Exception(getString(R.string.file_explorer_register_error_message2))
+
                 val exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
                 val date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())
                 photoMapItem.date = if(date != null) DateUtils.getFullPatternDateWithTime(date) else getString(R.string.file_explorer_register_error_message)
@@ -192,14 +198,17 @@ class FileExplorerActivity : AppCompatActivity() {
 
                     val result = BitmapUtils.createScaledBitmap(targetFile.absolutePath, Constants.WORKING_DIRECTORY + fileName + ".thumb", 200)
                     if (result) PhotoMapDbHelper.insertPhotoMapItem(photoMapItem)
+                    resultMessage = getString(R.string.file_explorer_register_complete)
                 }
             } catch (e: Exception) {
                 val errorMessage = e.message
                 resultMessage = "ERROR: $errorMessage"
             }
 
-            android.os.Handler(Looper.getMainLooper()).post {
-                DialogUtils.showAlertDialog(this@FileExplorerActivity, resultMessage, DialogInterface.OnClickListener { _, _ ->  } )
+            resultMessage?.let {
+                android.os.Handler(Looper.getMainLooper()).post {
+                    DialogUtils.showAlertDialog(this@FileExplorerActivity, resultMessage!!, DialogInterface.OnClickListener { _, _ ->  } )
+                }
             }
         }
 
