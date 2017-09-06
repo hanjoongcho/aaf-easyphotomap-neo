@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils
 import java.util.*
 import java.util.regex.Pattern
 import android.content.Intent
-
+import io.github.hanjoongcho.commons.utils.CommonUtils
 
 
 /**
@@ -53,11 +53,11 @@ class GroupSearchActivity : AppCompatActivity() {
             }
         }
 
-//        val listOfSortEntry = CommonUtils.entriesSortedByValues(recommendMap)
+        val listOfSortEntry = CommonUtils.entriesSortedByValues(recommendMap as Map<String, Int>)
         listRecommendationOrigin?.clear()
         listRecommendation?.clear()
-        for ((k, v) in recommendMap!!) {
-            listRecommendationOrigin?.add(Recommendation(k, v))
+        for ((key, value) in listOfSortEntry) {
+            listRecommendationOrigin?.add(Recommendation(key, value))
         }
         listRecommendation?.addAll(listRecommendationOrigin as Collection<Recommendation>)
         adapter = ArrayAdapter(this, R.layout.item_group_search, listRecommendation);

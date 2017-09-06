@@ -70,4 +70,10 @@ object CommonUtils {
         return pixel
     }
 
+    fun <K, V : Comparable<V>> entriesSortedByValues(map: Map<K, V>): List<Entry<K, V>> {
+        val sortedEntries = ArrayList(map.entries)
+        Collections.sort(sortedEntries
+        ) { e1, e2 -> e2.value.compareTo(e1.value) }
+        return sortedEntries
+    }
 }
