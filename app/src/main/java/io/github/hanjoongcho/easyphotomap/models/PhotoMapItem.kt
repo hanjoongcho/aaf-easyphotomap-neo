@@ -36,4 +36,5 @@ open class PhotoMapItem : RealmObject(), Comparable<PhotoMapItem> {
         }
         return result
     }
+
 }

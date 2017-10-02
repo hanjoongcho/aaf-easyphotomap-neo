@@ -156,4 +156,5 @@ class ExplorerItemAdapter(private val activity: Activity, private val parentCont
         internal var imageView1: ImageView? = null
         var position: Int = 0
     }
+
 }

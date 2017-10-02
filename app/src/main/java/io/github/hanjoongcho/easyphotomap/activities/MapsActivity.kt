@@ -33,21 +33,21 @@ import java.util.*
 
 class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
-    private var map: GoogleMap? = null
+    private var mMap: GoogleMap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
+     * Manipulates the mMap once available.
+     * This callback is triggered when the mMap is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
@@ -55,8 +55,8 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        map?.animateCamera(CameraUpdateFactory.newLatLngZoom(
+        mMap = googleMap
+        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 LatLng(Constants.GOOGLE_MAP_DEFAULT_LATITUDE, Constants.GOOGLE_MAP_DEFAULT_LONGITUDE),
                 Constants.GOOGLE_MAP_DEFAULT_ZOOM_VALUE))
     }
@@ -201,17 +201,17 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                     listLatLng.add(listMarkerOptions[i].position)
                 }
 
-                map?.setOnMarkerClickListener(clusterManager)
-                map?.setOnCameraChangeListener(clusterManager)
+                mMap?.setOnMarkerClickListener(clusterManager)
+                mMap?.setOnCameraChangeListener(clusterManager)
 
-                val clusterRenderer = MyClusterRenderer(this@MapsActivity, map!!, clusterManager!!)
+                val clusterRenderer = MyClusterRenderer(this@MapsActivity, mMap!!, clusterManager!!)
                 clusterManager?.setRenderer(clusterRenderer)
                 clusterManager?.setOnClusterClickListener { _ ->
-                    map?.setInfoWindowAdapter(null)
+                    mMap?.setInfoWindowAdapter(null)
                     false
                 }
 //                clusterManager?.setOnClusterItemClickListener {item ->
-//                    map?.setInfoWindowAdapter(InfoWindow(
+//                    mMap?.setInfoWindowAdapter(InfoWindow(
 //                            item.photoMapItem.info,
 //                            item.photoMapItem.imagePath,
 //                            item.photoMapItem.latitude,
@@ -219,7 +219,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 //                            item.photoMapItem.date
 //                    ))
 //                    val fImagePath = item.getPhotoEntity().imagePath
-//                    map?.setOnInfoWindowClickListener(GoogleMap.OnInfoWindowClickListener {
+//                    mMap?.setOnInfoWindowClickListener(GoogleMap.OnInfoWindowClickListener {
 //                        val imageViewIntent = Intent(this@MapsActivity, PopupImageActivity::class.java)
 //                        imageViewIntent.putExtra("imagePath", fImagePath)
 //                        startActivity(imageViewIntent)
@@ -232,14 +232,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                     builder.include(latLng)
                 }
                 val bounds = builder.build()
-                map?.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200))
+                mMap?.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200))
             }
         }
     }
 
     private var clusterManager: ClusterManager<MyItem>? = null
     private fun setUpCluster() {
-        clusterManager = clusterManager ?: ClusterManager<MyItem>(this, map)
+        clusterManager = clusterManager ?: ClusterManager<MyItem>(this, mMap)
         clusterManager?.clearItems()
     }
 
@@ -287,7 +287,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
         override fun onCameraChange(cameraPosition: CameraPosition) {
             if (cameraPosition.zoom > Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE) {
-                map?.animateCamera(CameraUpdateFactory.zoomTo(Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE))
+                mMap?.animateCamera(CameraUpdateFactory.zoomTo(Constants.GOOGLE_MAP_MAX_ZOOM_IN_VALUE))
             }
             mapZoom = cameraPosition.zoom
         }

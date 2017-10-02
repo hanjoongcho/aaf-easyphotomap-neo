@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_splash.*
  * Created by CHO HANJOONG on 2017-08-31.
  */
 class SplashActivity : Activity(), Handler.Callback {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -37,4 +38,5 @@ class SplashActivity : Activity(), Handler.Callback {
         }
         return false
     }
+
 }
